@@ -1,0 +1,5 @@
+{
+  "code": 5,
+  "msg": "请求方式不支持 请试试GET/POST/UPDATE...",
+  "data": null
+}

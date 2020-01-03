@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lyj.core.mapper.UserMapper">
+
+
+    <sql id="Base_feild">
+
+    </sql>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.lyj.core.entity.User">
+
+    </resultMap>
+
+    <resultMap id="OneToMany" type="cn.lyj.core.entity.User">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="login_key" property="loginKey"/>
+        <result column="ip" property="ip"/>
+        <result column="online" property="online"/>
+        <result column="address" property="address"/>
+    </resultMap>
+
+
+    <!-- 通用查询结果列   -->
+    <sql id="Base_Column_List">
+        id,
+        name,
+        password,
+        login_key,
+        ip,
+        address,
+        online
+    </sql>
+
+    <select id="findMyFrieds" parameterType="integer" resultType="cn.lyj.core.entity.User">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        tb_user
+        where id in (select friend_id from tb_user_friend where me_id=#{meId})
+    </select>
+
+
+    <select id="findList" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_user
+        <where>
+            <if test="map.id !=null and map.id !=''">
+                AND id=#{map.id}
+            </if>
+            <if test="map.name !=null and map.name !=''">
+                AND name like concat('%',#{map.name},'%')
+            </if>
+            <if test="map.password !=null and map.password !=''">
+                AND password like concat('%',#{map.password},'%')
+            </if>
+            <if test="map.loginKey !=null and map.loginKey !=''">
+                AND login_key like concat('%',#{map.loginKey},'%')
+            </if>
+            <if test="map.ip !=null and map.ip !=''">
+                AND ip like concat('%',#{map.ip},'%')
+            </if>
+            <if test="map.online !=null and map.online !=''">
+                AND online=#{map.online}
+            </if>
+        </where>
+    </select>
+</mapper>

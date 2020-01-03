@@ -1,0 +1,56 @@
+server:
+  port: 1956
+  tomcat:
+    uri-encoding: utf-8
+    max-http-header-size: 102400
+
+  # 项目访问路径
+  servlet:
+    context-path: /sockect
+
+
+
+# 数据源
+spring:
+  # 处理404 异常，关闭资源映射，不让Mvc 自己跳转到 error 请求，直接z抛出NoHandlerFoundException 异常，在全局异常捕获
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: true
+
+  ########## 日期格式化输出 #########
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+
+  #数据源
+  datasource:
+    url: jdbc:mysql://localhost:3306/socket_chat?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: tiger
+
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/**.xml
+  typeAliasesPackage: cn.lyj.core.entity
+  global-config:
+    db-config:
+    #  logic-delete-value: 1       # 逻辑已删除值(默认为 1)
+    #  logic-not-delete-value: 0   # 逻辑未删除值(默认为 0)
+      table-prefix: tb_   # 统一表前缀名
+
+
+    db-type: mysql
+    # Mapper 对应的 XML 文件，默认不自动刷新
+    #如果配置了该属性，Mapper 对应的 XML 文件会自动刷新，更改 XML 文件后，无需再次重启工程
+    refresh: true
+
+
+
+  configuration:
+    map-underscore-to-camel-case: true
+    # 延迟加载（按需加载） 在一对多或者一对一分步查询时候按需加载
+  #    lazy-loading-enabled: true
+  #    aggressive-lazy-loading: false
+  #    cache-enabled: true

@@ -1,0 +1,130 @@
+GET http://localhost:1956/sockect/user/myFrieds?meId=1&talkUserId=2&meId=1&meId=1
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T110913.200.json
+
+###
+
+GET http://localhost:1956/sockect/user/myFrieds?meId=1&talkUserId=2&meId=1
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T110747.200.json
+
+###
+
+GET http://localhost:1956/sockect/user/myFrieds?meId=1&talkUserId=2&meId=1
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T110727.200.json
+
+###
+
+POST http://localhost:1956/sockect/user/myFrieds?meId=1&talkUserId=2&meId=1
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T110722.200.json
+
+###
+
+POST http://localhost:1956/sockect/user/myFrieds?meId=1&talkUserId=2
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T110716.200.json
+
+###
+
+POST http://localhost:1956/sockect/list?meId=1&talkUserId=2
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T110658.404.json
+
+###
+
+POST http://localhost:1956/sockect/?meId=1&talkUserId=2
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T110655.404.json
+
+###
+
+POST http://localhost:1956/sockect/message/list?meId=1&talkUserId=2
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-03T095715.200.json
+
+###
+
+POST http://localhost:1956/sockect/message/list?meId=1&talkUserId=2
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-02T105249.200.json
+
+###
+
+POST http://localhost:1956/sockect/message/list?meId=1&talkUserId=2
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2020-01-02T105110.200.json
+
+###
+
+POST http://localhost:1956/sockect/message/list?meId=1&talkUserId=2
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2019-12-26T102812.200.json
+
+###
+
+POST http://localhost:1956/sockect/message/list
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2019-12-26T102755.200.json
+
+###
+
+POST http://localhost:1956/sockect/message/list
+Accept: */*
+Cache-Control: no-cache
+
+{     "meId":1     "talkUserId":2 }
+
+<> 2019-12-26T102725.200.json
+
+###
+

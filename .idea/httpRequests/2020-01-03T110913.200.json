@@ -1,0 +1,28 @@
+{
+  "code": 0,
+  "msg": "操作成功！",
+  "data": {
+    "2": {
+      "count": 2,
+      "friend": {
+        "id": 2,
+        "name": "李四",
+        "password": "123456",
+        "loginKey": "李四",
+        "ip": "127.0.0.1",
+        "online": 1
+      }
+    },
+    "3": {
+      "count": 2,
+      "friend": {
+        "id": 3,
+        "name": "王五",
+        "password": "123456",
+        "loginKey": "王五",
+        "ip": "127.0.0.1",
+        "online": 0
+      }
+    }
+  }
+}

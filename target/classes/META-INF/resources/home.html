@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        #app {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .userList {
+            height: 500px;
+            overflow-y: scroll;
+        }
+
+        .userList::-webkit-scrollbar, .main::-webkit-scrollbar {
+            /*滚动条整体样式*/
+            width: 3px !important; /*高宽分别对应横竖滚动条的尺寸*/
+            height: 8px !important;
+            background: #ffffff !important;
+            cursor: pointer !important;
+            display: none;
+        }
+
+        .userList::-webkit-scrollbar-thumb, .main::-webkit-scrollbar-thumb {
+            /*滚动条里面小方块*/
+            border-radius: 5px !important;
+            -webkit-box-shadow: inset 0 0 2px rgba(240, 240, 240, 0.5) !important;
+            background: rgba(63, 98, 131, 0.8) !important;
+            cursor: pointer !important;
+            display: none;
+        }
+
+        .userList::-webkit-scrollbar-track, .main::-webkit-scrollbar-track {
+            /*滚动条里面轨道*/
+            -webkit-box-shadow: inset 0 0 2px rgba(240, 240, 240, 0.5) !important;
+            border-radius: 0 !important;
+            background: rgba(240, 240, 240, 0.5) !important;
+            cursor: pointer !important;
+            display: none;
+        }
+
+        .chat-content {
+            height: 540px;
+        }
+
+        .chat-content ul {
+            padding: 0;
+        }
+
+        .userList img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50px;
+        }
+
+        .userList ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        .userList li {
+            color: #333;
+            cursor: pointer;
+            border-bottom: 1px solid #ebebeb;
+            display: flex;;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .userList .img {
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        .userList li:hover {
+            background: #ebebeb;
+            width: 100%;
+        }
+
+        .name {
+            flex: 4;
+        }
+
+        .name h4 {
+            display: inline-block;
+        }
+
+        .online {
+            flex: 3;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .onlining {
+            color: green;
+        }
+
+        .notonlining {
+            color: gray;
+        }
+
+        .onlineLastTime {
+            font-size: 10px;
+            color: gray;
+        }
+
+        .top {
+            width: 100%;
+            text-align: center;
+            border-bottom: 1px solid #ebebeb;
+        }
+
+        .main {
+            height: 400px;
+            overflow-y: scroll;
+            padding-bottom: 5px;
+        }
+
+        .inputDiv {
+            border-top: 1px solid #ebebeb;
+            height: 140px;
+            padding-top: 5px;
+        }
+
+        .inputDiv div {
+            text-align: right;
+            padding-top: 5px;
+        }
+
+        .main img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .name span {
+            font-size: 10px;
+            color: gray;
+        }
+
+        .message {
+            margin-left: 40px;
+        }
+
+        .message .content {
+            border-radius: 10px;
+            background: #ebebeb;
+            padding: 10px;
+            position: relative;
+            top: 10px;
+        }
+
+        .main li {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .userInfo {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .myMsg, .her {
+            padding: 10px 0;
+        }
+
+        .her {
+            text-align: right;
+        }
+
+        .noCheckUserToTakl {
+            height: 540px;
+            display: flex;;
+            align-items: center;
+            justify-content: center;
+
+        }
+        .allUsers{
+            height: 300px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-row :gutter="10">
+        <el-col>
+            <el-card style="text-align: center">
+
+            </el-card>
+        </el-col>
+    </el-row>
+
+    <el-row :gutter="10">
+        <el-col :span="8">
+            <el-card>
+                <div style="text-align: center;border-bottom: 1px solid #ebebeb;padding-bottom:10px">
+                    当前用户：{{currentUser.name}}
+                </div>
+                <div class="userList">
+                    <div>好友列表：</div>
+                    <ul>
+                        <li @click="talkThis(value.friend)" v-for="(value,key) in myfriends" :key="key">
+                            <div class="img">
+                                <img src="/sockect/static/user.jpg">
+                            </div>
+                            <div class="name">
+                                <h4>{{value.friend.name}}</h4>
+                                <el-badge v-if="value.count>0" :value="value.count" class="item"></el-badge>
+
+                            </div>
+                            <div class="online">
+                                <div v-if="value.friend.online">
+                                    <div class="onlining">在线</div>
+                                    <div class="onlineLastTime">{{value.friend.onlineLastTime}}</div>
+                                </div>
+                                <div v-else>
+                                    <div class="notonlining">不在线</div>
+                                    <div class="onlineLastTime">{{value.friend.onlineLastTime}}</div>
+                                </div>
+
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </el-card>
+        </el-col>
+        <el-col :span="16">
+            <el-card>
+                <div class="chat-content">
+                    <div v-if="talkUser.id!=''" v-loading="loading">
+                        <div class="top">{{talkUser.name==""?"无":talkUser.name}}</div>
+                        <div class="main">
+                            <ul>
+                                <li class="me" v-for="(msg,idx) in talkingMessages" :key="idx">
+                                    <div class="myMsg" v-if="msg.meId!=currentUser.id">
+                                        <div class="userInfo">
+                                            <div class="img">
+                                                <img src="/sockect/static/user.jpg">
+                                            </div>
+                                            <div class="name">
+                                                <div>{{talkUser.name}}</div>
+                                                <div>
+                                                    <span>{{msg.createTime}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="message">
+                                            <span class="content">{{msg.msg}}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="her" v-else>
+                                        <div class="userInfo her">
+
+                                            <div class="name">
+                                                <div>{{currentUser.name}}</div>
+                                                <div>
+                                                    <span>{{msg.createTime}}</span>
+                                                </div>
+                                            </div>
+                                            <div class="img">
+                                                <img src="/sockect/static/user.jpg">
+                                            </div>
+
+                                        </div>
+                                        <div class="message">
+                                            <span class="content">{{msg.msg}}</span>
+                                        </div>
+                                    </div>
+
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="inputDiv">
+                            <el-input
+                                    type="textarea"
+                                    resize="none"
+                                    :autosize="{ minRows: 3, maxRows: 3}"
+                                    placeholder="请输入内容"
+                                    v-model="sendMsgContent.content">
+                            </el-input>
+                            <div>
+                                <el-button @click="sendMsg" type="primary">发送</el-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="noCheckUserToTakl" v-else>
+                        <span>请选择聊天用户</span>
+                    </div>
+                </div>
+            </el-card>
+        </el-col>
+    </el-row>
+    <el-row>
+        <el-col>
+            <el-card class="allUsers">
+                <div>所有用户</div>
+                <el-card v-for="(user,idx) in userList" :key="idx">
+                    {{user.name}} &nbsp; ({{user.address}}) &nbsp;&nbsp;
+                    <span v-if="user.online">
+                            <span class="onlining">在线</span>
+                        </span>
+                    <span v-else>
+                            <span class="notonlining">不在线</span>
+                        </span>
+                    &nbsp;&nbsp;
+                    <i class="el-icon-circle-plus-outline"></i>
+                </el-card>
+            </el-card>
+        </el-col>
+    </el-row>
+
+</div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="./static/js/qs.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="./static/js/AxiosUtil.js"></script>
+<script>
+
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                visible: false,
+                loading: false,
+                input: '',
+                sendMsgContent: {
+                    content: '',
+                    toUserId: '',
+                },
+                talkUser: {
+                    id: "",
+                    name: '',
+                    online: '',
+                    onlineLastTime: ''
+                },
+                currentUser: {
+                    id: '',
+                    name: '',
+                    online: '',
+                    onlineLastTime: ''
+                },
+                myfriends: {},
+                talkingMessages: [],
+                userList: [],
+                resCode: {
+                    连接成功: 0,
+                    消息发送成功: 1,
+                    接收消息: 2,
+
+                },
+                url: {
+                    myInfo: '/user/selectById/?',
+                    userList: '/user/list',
+                    messageHis: '/message/list',
+                    userMyfrieds: '/user/myFrieds',
+                    scokectUrl: '192.168.0.101:1956/sockect/chat/?',
+                    addFriend:'/user/addFreind',
+                },
+                sockectClient: {},
+            }
+        },
+        created() {
+            this.currentUser.id = GetQueryValue('userId');
+            this.getMyInfo();
+            this.getMyFriends();
+            this.getAllUsers();
+            this.initWebSockect();
+        },
+        methods: {
+            getMyInfo() {
+                $get(this.url.myInfo.replace("?", this.currentUser.id), {}).then((res) => {
+                    if (res.data.code == 0) {
+                        this.currentUser = res.data.data;
+                    }
+                }).catch(function (error) {
+                });
+            },
+            talkThis(user) {
+                this.talkUser = user;
+                this.sendMsgContent.toUserId = user.id;
+                this.getMessageHisListMsg(user.id);
+            },
+            getMyFriends() {
+                $get(this.url.userMyfrieds, {meId: this.currentUser.id}).then((res) => {
+                    if (res.data.code == 0) {
+                        this.myfriends = res.data.data;
+                    }
+                }).catch(function (error) {
+                });
+            },
+            getMessageHisListMsg(talkUserId) {
+                this.loading = true;
+                $post(this.url.messageHis, {meId: this.currentUser.id, talkUserId: talkUserId}).then((res) => {
+                    if (res.data.code == 0) {
+                        this.talkingMessages = res.data.data.records
+                        this.getMyFriends();
+                    }
+                    this.loading = false;
+                }).catch(function (error) {
+                });
+            },
+            getAllUsers() {
+                $get(this.url.userList, {}).then(res => {
+                    if (res.data.code == 0) {
+                        this.userList = res.data.data.records
+                    }
+                }).catch(function (error) {
+                });
+            },
+            initWebSockect() {
+                _this = this
+                if (typeof (WebSocket) == "undefined") {
+                    console.log("您的浏览器不支持WebSocket");
+                } else {
+                    this.sockectClient = new WebSocket("ws://" + this.url.scokectUrl.replace("?", this.currentUser.id));
+                }
+
+                //打开事件
+                this.sockectClient.onopen = function () {
+                    console.log("Socket 已打开");
+                    //socket.send("这是来自客户端的消息" + location.href + new Date());
+                };
+                //获得消息事件
+                this.sockectClient.onmessage = function (msg) {
+                    let res = JSON.parse(msg.data);
+                    console.log(res)
+                    if (res.code == _this.resCode.接收消息) {
+                        if (res.data.fromUserId == _this.talkUser.id) {
+                            _this.getMessageHisListMsg(res.data.fromUserId)
+                        } else {
+                            _this.getMyFriends();
+                        }
+                    } else if (res.code == _this.resCode.消息发送成功) {
+                        _this.getMessageHisListMsg(_this.talkUser.id);
+                        _this.sendMsgContent.content = "";
+                    } else {
+                        console.log("连接成功")
+                    }
+                };
+                //关闭事件
+                this.sockectClient.onclose = function () {
+                    console.log("Socket已关闭");
+                    _this.initWebSockect();
+                };
+                //发生了错误事件
+                this.sockectClient.onerror = function () {
+                    alert("Socket发生了错误");
+                    //此时可以尝试刷新页面
+                }
+            },
+            sendMsg() {
+                if (this.sendMsgContent.toUserId == "") {
+                    alert("请选择聊天用户");
+                    return;
+                }
+                if (this.sendMsgContent.content == null || this.sendMsgContent.content.trim() == "") {
+                    alert("不能发送空内容")
+                    return;
+                }
+                this.sockectClient.send(JSON.stringify(this.sendMsgContent))
+            }
+        }
+    })
+</script>
+</html>
+
