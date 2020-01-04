@@ -27,7 +27,7 @@ import java.util.List;
 public class MessageService extends ServiceImpl<MessageMapper, Message>
 {
 
-    public IPage<Message> listHis(Integer meId, Integer talkUserId, Page<Message> page)
+    public IPage<Message> listHis(String meId, String talkUserId, Page<Message> page)
     {
         List<Message> records = baseMapper.listHis(meId,talkUserId,page);
         records.forEach(message -> {
@@ -41,8 +41,8 @@ public class MessageService extends ServiceImpl<MessageMapper, Message>
         return page.setRecords(records);
     }
 
-    public boolean saveMsg(String userId, Integer toUserId, String content)
+    public boolean saveMsg(String userId, String toUserId, String content)
     {
-        return super.save(new Message().setMeId(Integer.parseInt(userId)).setTalkUserId(toUserId).setMsg(content));
+        return super.save(new Message().setMeId(userId).setTalkUserId(toUserId).setMsg(content));
     }
 }

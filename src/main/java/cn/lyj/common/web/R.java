@@ -75,7 +75,7 @@ public class R
     public static R success(int code,String msg)
     {
         R r = new R();
-        r.setCode(SUCCESS_CODE);
+        r.setCode(code);
         r.setMsg(msg);
         return r;
     }

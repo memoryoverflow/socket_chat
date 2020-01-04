@@ -30,12 +30,16 @@ public class UserFriend extends Model<UserFriend>
     private Integer id;
 
 
-    private Integer meId;
+    private String meId;
 
 
-    private Integer friendId;
+    private String friendId;
 
-    public UserFriend(Integer meId, Integer friendId)
+    public UserFriend()
+    {
+    }
+
+    public UserFriend(String meId, String friendId)
     {
         this.meId = meId;
         this.friendId = friendId;

@@ -43,7 +43,7 @@
         }
 
         .chat-content {
-            height: 540px;
+            height: 535px;
         }
 
         .chat-content ul {
@@ -175,11 +175,34 @@
             display: flex;;
             align-items: center;
             justify-content: center;
-
         }
-        .allUsers{
+
+        .allUsers {
             height: 300px;
+            width: 100%;
             overflow-y: scroll;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .allUsers .el-card__body {
+            width: 100%;
+        }
+
+        .allUsers .userDiv {
+            border: 1px solid #ebebeb;
+            border-radius: 5px;
+            padding-left: 20px;
+            margin-right: 10px;
+            margin-top: 10px;
+            padding-right: 10px;
+        }
+
+        .allUsers .userDiv i {
+            float: right;
+            position: relative;
+            cursor: pointer;
+            top: 3px;
         }
     </style>
 </head>
@@ -232,7 +255,7 @@
                 <div class="chat-content">
                     <div v-if="talkUser.id!=''" v-loading="loading">
                         <div class="top">{{talkUser.name==""?"无":talkUser.name}}</div>
-                        <div class="main">
+                        <div id="main" class="main">
                             <ul>
                                 <li class="me" v-for="(msg,idx) in talkingMessages" :key="idx">
                                     <div class="myMsg" v-if="msg.meId!=currentUser.id">
@@ -283,7 +306,8 @@
                                     v-model="sendMsgContent.content">
                             </el-input>
                             <div>
-                                <el-button @click="sendMsg" type="primary">发送</el-button>
+                                <el-button size="mini" style="width: 100%" @click="sendMsg" type="primary">发送
+                                </el-button>
                             </div>
                         </div>
                     </div>
@@ -295,24 +319,34 @@
         </el-col>
     </el-row>
     <el-row>
-        <el-col>
+        <el-col :span="24">
             <el-card class="allUsers">
-                <div>所有用户</div>
-                <el-card v-for="(user,idx) in userList" :key="idx">
-                    {{user.name}} &nbsp; ({{user.address}}) &nbsp;&nbsp;
-                    <span v-if="user.online">
+                <el-row style="width: 100%;">
+                    <el-col :span="24" style="border-right: 1px solid #ebebeb">
+                        <div style="display: flex;flex-direction: row">
+                            <div>所有用户 ({{userList.length}})</div>
+                            <div style="margin-left: 100px;color: red;font-size: 13px">{{userLiveTip}}</div>
+                        </div>
+                        <div>
+                            <el-input style="width: 60%;margin-right: 10px" v-model="searchUserName"
+                                      placeholder="请输入内容"></el-input>
+                            <el-button @click="searchUser" type="primary" icon="el-icon-search">搜索</el-button>
+                        </div>
+                        <div class="userDiv" v-for="(user,idx) in userList" :key="idx">
+                            {{user.name}} &nbsp; ({{user.address}}) &nbsp;&nbsp;
+                            <span v-if="user.online">
                             <span class="onlining">在线</span>
                         </span>
-                    <span v-else>
+                            <span v-else>
                             <span class="notonlining">不在线</span>
                         </span>
-                    &nbsp;&nbsp;
-                    <i class="el-icon-circle-plus-outline"></i>
-                </el-card>
+                            <i class="el-icon-circle-plus-outline" @click="addFreindClick(user)"></i>
+                        </div>
+                    </el-col>
+                </el-row>
             </el-card>
         </el-col>
     </el-row>
-
 </div>
 </body>
 <!-- import Vue before Element -->
@@ -330,7 +364,8 @@
             return {
                 visible: false,
                 loading: false,
-                input: '',
+                searchUserName: '', // 搜索
+                userLiveTip: '',
                 sendMsgContent: {
                     content: '',
                     toUserId: '',
@@ -354,6 +389,8 @@
                     连接成功: 0,
                     消息发送成功: 1,
                     接收消息: 2,
+                    用户登陆: 3,
+                    用户退出: 4,
 
                 },
                 url: {
@@ -361,8 +398,8 @@
                     userList: '/user/list',
                     messageHis: '/message/list',
                     userMyfrieds: '/user/myFrieds',
-                    scokectUrl: '192.168.0.101:1956/sockect/chat/?',
-                    addFriend:'/user/addFreind',
+                    scokectUrl: '127.0.0.1:1956/sockect/chat/?',
+                    addFriend: '/user/addFreind',
                 },
                 sockectClient: {},
             }
@@ -375,19 +412,47 @@
             this.initWebSockect();
         },
         methods: {
+            // 搜索用户
+            searchUser() {
+                this.getAllUsers();
+            },
+            // 添加好友
+            addFreindClick(user) {
+                $post(this.url.addFriend, {meId: this.currentUser.id, friendId: user.id}).then(res => {
+                    if (res.data.code == 0) {
+                        this.getMyFriends();
+                        this.$notify({
+                            title: '温馨提示',
+                            message: '添加成功',
+                            type: 'success'
+                        });
+                    } else {
+                        this.$notify({
+                            title: '温馨提示',
+                            message: res.data.msg,
+                            type: 'warning'
+                        });
+                    }
+                })
+            },
+            // 获取我的个人信息
             getMyInfo() {
                 $get(this.url.myInfo.replace("?", this.currentUser.id), {}).then((res) => {
                     if (res.data.code == 0) {
                         this.currentUser = res.data.data;
+                    } else {
+                        window.location.href = "/sockect/login.html"
                     }
                 }).catch(function (error) {
                 });
             },
+            // 点击与好友聊天
             talkThis(user) {
                 this.talkUser = user;
                 this.sendMsgContent.toUserId = user.id;
                 this.getMessageHisListMsg(user.id);
             },
+            // 我的好有列表
             getMyFriends() {
                 $get(this.url.userMyfrieds, {meId: this.currentUser.id}).then((res) => {
                     if (res.data.code == 0) {
@@ -396,25 +461,38 @@
                 }).catch(function (error) {
                 });
             },
+            // 获取历史聊天记录
             getMessageHisListMsg(talkUserId) {
                 this.loading = true;
                 $post(this.url.messageHis, {meId: this.currentUser.id, talkUserId: talkUserId}).then((res) => {
                     if (res.data.code == 0) {
                         this.talkingMessages = res.data.data.records
                         this.getMyFriends();
+                        setTimeout(() => {
+                            this.talDivMsgBottom()
+                        }, 300)
                     }
                     this.loading = false;
                 }).catch(function (error) {
                 });
             },
+            //所有的用户
             getAllUsers() {
-                $get(this.url.userList, {}).then(res => {
+                $get(this.url.userList, {name: this.searchUserName}).then(res => {
                     if (res.data.code == 0) {
-                        this.userList = res.data.data.records
+                        this.userList = res.data.data
                     }
                 }).catch(function (error) {
                 });
             },
+            // 让聊天内容滚到底部
+            talDivMsgBottom() {
+                var div = document.getElementById('main');
+                //这么多代码只需要这一句实现我们所需要的功能，定位div滚动条位置在底部，scrollHeight计算出div的高度，再scrollTop 设置滚动条的高度为多少
+                div.scrollTop = div.scrollHeight;
+            },
+
+            // 连接sokect
             initWebSockect() {
                 _this = this
                 if (typeof (WebSocket) == "undefined") {
@@ -441,6 +519,15 @@
                     } else if (res.code == _this.resCode.消息发送成功) {
                         _this.getMessageHisListMsg(_this.talkUser.id);
                         _this.sendMsgContent.content = "";
+                    } else if (res.code == _this.resCode.用户登陆) {
+                        _this.userLiveTip = "用户加入：" + res.msg
+                        _this.userList = res.data['users'];
+                        _this.myfriends = res.data.myfriends;
+                    } else if (res.code == _this.resCode.用户退出) {
+                        _this.userLiveTip = "用户退出：" + res.msg
+                        _this.userList = res.data['users'];
+                        _this.myfriends = res.data.myfriends;
+
                     } else {
                         console.log("连接成功")
                     }
@@ -452,7 +539,7 @@
                 };
                 //发生了错误事件
                 this.sockectClient.onerror = function () {
-                    alert("Socket发生了错误");
+                    console.log("Socket发生了错误");
                     //此时可以尝试刷新页面
                 }
             },

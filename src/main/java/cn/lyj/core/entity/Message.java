@@ -30,9 +30,9 @@ public class Message  extends Model<Message> implements Comparable<Message>
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    private Integer meId;
+    private String meId;
 
-    private Integer talkUserId;
+    private String talkUserId;
 
     private String msg;
 

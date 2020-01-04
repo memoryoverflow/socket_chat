@@ -34,7 +34,7 @@
         online
     </sql>
 
-    <select id="findMyFrieds" parameterType="integer" resultType="cn.lyj.core.entity.User">
+    <select id="findMyFrieds" parameterType="string" resultType="cn.lyj.core.entity.User">
         select
         <include refid="Base_Column_List"/>
         from
@@ -63,9 +63,10 @@
             <if test="map.ip !=null and map.ip !=''">
                 AND ip like concat('%',#{map.ip},'%')
             </if>
-            <if test="map.online !=null and map.online !=''">
+            <if test="map.online !=null">
                 AND online=#{map.online}
             </if>
         </where>
+        order by  online DESC
     </select>
 </mapper>

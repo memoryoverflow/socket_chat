@@ -2,12 +2,12 @@ package cn.lyj.core.entity;
 
 public class ResData
 {
-    private Integer fromUserId;
+    private String fromUserId;
     private String fromUserName;
     private String content;
     private String data;
 
-    public ResData(Integer fromUserId, String fromUserName, String content, String data)
+    public ResData(String fromUserId, String fromUserName, String content, String data)
     {
         this.fromUserId = fromUserId;
         this.fromUserName = fromUserName;
@@ -15,25 +15,25 @@ public class ResData
         this.data = data;
     }
 
-    public ResData(Integer fromUserId, String content)
+    public ResData(String fromUserId, String content)
     {
         this.fromUserId = fromUserId;
         this.content = content;
     }
 
-    public ResData(Integer fromUserId, String fromUserName, String content)
+    public ResData(String fromUserId, String fromUserName, String content)
     {
         this.fromUserId = fromUserId;
         this.fromUserName = fromUserName;
         this.content = content;
     }
 
-    public Integer getFromUserId()
+    public String getFromUserId()
     {
         return fromUserId;
     }
 
-    public void setFromUserId(Integer fromUserId)
+    public void setFromUserId(String fromUserId)
     {
         this.fromUserId = fromUserId;
     }

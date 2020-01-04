@@ -33,7 +33,7 @@ public class MessageController extends BaseController<Message>
 
 
     @PostMapping("/list")
-    public R list(@RequestParam("meId") Integer meId, @RequestParam("talkUserId") Integer talkUserId)
+    public R list(@RequestParam("meId") String meId, @RequestParam("talkUserId") String talkUserId)
     {
         IPage<Message> iPage = thisService.listHis(meId, talkUserId, page(new OrderBy(OrderBy.Direction.DESC, "create_time")));
         List<Message> records = iPage.getRecords();

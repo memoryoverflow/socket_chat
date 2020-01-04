@@ -26,23 +26,20 @@ public class User extends Model<User>
 {
     private static final long serialVersionUID = 1L;
 
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+    @TableId(type = IdType.UUID)
+    private String id;
 
     @NotBlank(message = "请填写姓名")
     private String name;
 
-    @NotBlank(message = "请填写密码")
     private String password;
 
-    @NotBlank(message = "请填写登陆账户")
     private String loginKey;
 
 
     private String ip;
 
     private String address;
-
 
     private Integer online;
 

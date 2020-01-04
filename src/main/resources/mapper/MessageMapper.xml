@@ -30,7 +30,7 @@
     </sql>
 
     <select id="selectOneByMeAndTalkUserId" resultType="integer">
-        select parent_id from tb_message where me_id =#{meId} and talk_user_id=#{talkToUserId} order by id ASC limit 1
+        select parent_id from tb_message where me_id =#{meId} and talk_user_id=#{talkToUserId} order by create_time ASC limit 1
     </select>
 
 
@@ -58,7 +58,7 @@
         order by ASC id
     -->
 
-    <select id="listHis" parameterType="integer" resultMap="BaseResultMap">
+    <select id="listHis" parameterType="string" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from tb_message m
@@ -74,11 +74,5 @@
         and
         talk_user_id=#{meId}
         )
-    </select>
-
-    <select id="son" resultMap="SON_RESULT" parameterType="integer">
-        select
-        <include refid="Base_Column_List"/>
-        from tb_message where parent_id=#{id}
     </select>
 </mapper>

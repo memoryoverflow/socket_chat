@@ -20,10 +20,10 @@ import java.util.List;
  */
 public interface MessageMapper extends BaseMapper<Message>
 {
-    List<Message> listHis(@Param("meId") Integer meId, @Param("talkToUserId") Integer talkToUserId, @Param("page") Page<Message> page);
+    List<Message> listHis(@Param("meId") String meId, @Param("talkToUserId") String talkToUserId, @Param("page") Page<Message> page);
 
-    Integer selectOneByMeAndTalkUserId(@Param("meId") Integer meId, @Param("talkToUserId") Integer talkToUserId);
+    Integer selectOneByMeAndTalkUserId(@Param("meId") String meId, @Param("talkToUserId") String talkToUserId);
 
     @Select(value = "select count(id) from tb_message where me_id=#{fromUserId} and talk_user_id=#{meId} and status=0")
-    Integer selectCount(@Param("meId") Integer meId, @Param("fromUserId") Integer fromUserId);
+    Integer selectCount(@Param("meId") String meId, @Param("fromUserId") String fromUserId);
 }

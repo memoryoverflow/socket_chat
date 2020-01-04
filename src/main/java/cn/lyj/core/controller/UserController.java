@@ -3,6 +3,8 @@ package cn.lyj.core.controller;
 
 import cn.lyj.common.exception.MyException;
 import cn.lyj.common.utils.HttpHeaderUtil;
+import cn.lyj.common.utils.StringUtils;
+import cn.lyj.common.web.OrderBy;
 import cn.lyj.core.entity.UserFriend;
 import cn.lyj.core.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -42,39 +44,49 @@ public class UserController extends BaseController<User>
     @GetMapping("/list")
     public R list(@RequestParam Map<String, Object> param)
     {
-        return success(thisService.findList(param, page()));
+        return success(thisService.findList(param));
     }
 
     @GetMapping("/myFrieds")
-    public R myFrieds(@RequestParam("meId") Integer meId)
+    public R myFrieds(@RequestParam("meId") String meId)
     {
         return success(thisService.getMyFrieds(meId));
     }
 
     @PostMapping("/addFreind")
-    public R addFreind(@RequestParam("meId") Integer meId, @RequestParam("friendId") Integer friendId)
+    public R addFreind(@RequestParam("meId") String meId, @RequestParam("friendId") String friendId)
     {
-        return result(new UserFriend(meId, friendId).insert());
+        if (meId.equals(friendId))
+        {
+            throw new MyException("不能添加自己为好友");
+        }
+        UserFriend userFriend = new UserFriend().selectOne(new QueryWrapper<UserFriend>().lambda().eq(UserFriend::getMeId, meId).eq(UserFriend::getFriendId, friendId));
+        if (StringUtils.isNull(userFriend))
+        {
+            new UserFriend(friendId, meId).insert();
+            return result(new UserFriend(meId, friendId).insert());
+        }
+        throw new MyException("你们已经是好友了");
     }
 
     @PostMapping("/save")
     public R insertSave(@Valid User entity)
     {
-        String loginKey = entity.getLoginKey();
-        int count = thisService.count(new QueryWrapper<User>().lambda().eq(User::getLoginKey, loginKey));
-        if (count > 0)
+        User user = thisService.getOne(new QueryWrapper<User>().lambda().eq(User::getName, entity.getName()).select(User::getId, User::getOnline));
+        if (StringUtils.isNotNull(user))
         {
-            throw new MyException("登陆名已存在");
-        }
-        count = thisService.count(new QueryWrapper<User>().lambda().eq(User::getName, entity.getName()));
-        if (count > 0)
-        {
-            throw new MyException("用户名已存在");
+            if (user.getOnline() == 1)
+            {
+                throw new MyException("当前账户被使用了");
+            }
+            return success(entity.getId());
         }
         String ip = HttpHeaderUtil.getIp();
         entity.setIp(ip);
         entity.setAddress(HttpHeaderUtil.getIpAddress());
-    return result(thisService.save(entity));
+        entity.setOnline(1);
+        thisService.save(entity);
+        return success(entity.getId());
     }
 
     @PutMapping("/update")
@@ -86,7 +98,12 @@ public class UserController extends BaseController<User>
     @GetMapping("/selectById/{id}")
     public R selectById(@PathVariable("id") String id)
     {
-        return success(thisService.getById(id));
+        User user = thisService.getById(id);
+        if (StringUtils.isNull(user))
+        {
+            throw new MyException("用户不存在");
+        }
+        return success(user);
     }
 
     @DeleteMapping("/{ids}/remove")

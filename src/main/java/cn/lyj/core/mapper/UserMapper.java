@@ -15,6 +15,6 @@ import java.util.Map;
  * @since 2019-12-26 03:35
  */
 public interface UserMapper extends BaseMapper<User> {
-    List<User> findList(@Param("map") Map<String,Object> map, @Param("page") Page<User> page);
-    List<User> findMyFrieds(@Param("meId") Integer meId);
+    List<User> findList(@Param("map") Map<String,Object> map);
+    List<User> findMyFrieds(@Param("meId") String meId);
 }

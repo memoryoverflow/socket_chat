@@ -1,18 +1,16 @@
 package cn.lyj.sockect;
 
+import cn.lyj.common.ConsVal;
 import cn.lyj.common.utils.StringUtils;
 import cn.lyj.common.web.R;
-import cn.lyj.core.entity.Message;
 import cn.lyj.core.entity.RecData;
 import cn.lyj.core.entity.ResData;
-import cn.lyj.core.entity.UserFriend;
+import cn.lyj.core.entity.User;
 import cn.lyj.core.service.MessageService;
 import cn.lyj.core.service.UserService;
 import com.alibaba.fastjson.JSON;
-import org.aspectj.bridge.IMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +19,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -97,14 +96,60 @@ public class SockectServer
         try
         {
             sendMessage(R.success("连接成功"));
+
+            // 用户上线
+            userService.updateById(new User().setId(userId).setOnline(1));
+
             logger.info("连接成功");
-        }
-        catch (IOException | EncodeException e)
+            noticeOnineUser(true);
+        } catch (IOException | EncodeException e)
         {
             e.printStackTrace();
             logger.error("websocket IO异常");
         }
     }
+
+
+    /**
+     * 通知在线的所有人 有用户登陆
+     */
+    private void noticeOnineUser(boolean flag)
+    {
+        Integer code = ConsVal.SOCKECT_RES_REC_USER_LOGOUT;
+        if (flag)
+        {
+            code = ConsVal.SOCKECT_RES_REC_USER_LOGIN;
+        }
+
+        for (Map.Entry<String, SockectServer> map : WEBSOCKECT_MAP.entrySet())
+        {
+            String sId = map.getKey();
+            SockectServer sockectServer = map.getValue();
+            if (!sId.equals(userId))
+            {
+                try
+                {
+                    Map<String, Map<String, Object>> myFrieds = userService.getMyFrieds(sId);
+                    List<User> list = userService.findList(new HashMap<>());
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("myfriends", myFrieds);
+                    data.put("users", list);
+                    R success = R.success(code, userService.getById(sId).getName());
+                    success.setData(data);
+
+                    sockectServer.sendMessage(sockectServer.session, success);
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                } catch (EncodeException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        ;
+    }
+
 
     /**
      * @param session
@@ -143,8 +188,7 @@ public class SockectServer
     /**
      * 收到客户端消息后调用的方法
      *
-     * @param message
-     *         客户端发送过来的消息
+     * @param message 客户端发送过来的消息
      */
     @OnMessage
     public void onMessage(String message, Session session)
@@ -153,38 +197,39 @@ public class SockectServer
         try
         {
             RecData recData = recMsg(message);
-            Integer toUserId = recData.getToUserId();
+            String toUserId = recData.getToUserId();
 
             SockectServer server = WEBSOCKECT_MAP.get(String.valueOf(toUserId));
-            boolean saveMsg = false;
+            boolean saveMsg = messageService.saveMsg(userId, toUserId, recData.getContent());
+
+            // 用户不在线
             if (server != null)
             {
-                ResData resData = new ResData(Integer.parseInt(userId), recData.getContent());
-                saveMsg = messageService.saveMsg(userId, toUserId, recData.getContent());
+                ResData resData = new ResData(userId, recData.getContent());
                 if (saveMsg)
                 {
                     // 给那个人推送消息
-                    Map<Integer, Map<String, Object>> myFrieds = userService.getMyFrieds(toUserId);
+                    Map<String, Map<String, Object>> myFrieds = userService.getMyFrieds(toUserId);
                     resData.setData(JSON.toJSONString(myFrieds));
                     R success = R.success(2, resData);
-                    server.sendMessage(server.session,success);
+                    server.sendMessage(server.session, success);
                 }
             }
+
+
             if (saveMsg)
             {
                 // 响应发消息端
-                sendMessage(R.success(1,"消息发送成功"));
+                sendMessage(R.success(1, "消息发送成功"));
             }
             else
             {
                 sendMessage(R.error("消息发送失败"));
             }
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
-        }
-        catch (EncodeException e)
+        } catch (EncodeException e)
         {
             e.printStackTrace();
         }
@@ -209,6 +254,8 @@ public class SockectServer
     {
         WEBSOCKECT_MAP.remove(this.userId);
         changeOnlineUser(false);
+        noticeOnineUser(false);
+        userService.updateById(new User().setId(userId).setOnline(0));
         logger.info("有用户退出！当前在线人数为" + getOnlineUser());
     }
 

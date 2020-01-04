@@ -2,15 +2,15 @@ package cn.lyj.core.entity;
 
 public class RecData
 {
-    private Integer toUserId;
+    private String toUserId;
     private String content;
 
-    public Integer getToUserId()
+    public String getToUserId()
     {
         return toUserId;
     }
 
-    public void setToUserId(Integer toUserId)
+    public void setToUserId(String toUserId)
     {
         this.toUserId = toUserId;
     }

@@ -29,10 +29,10 @@ public class UserService extends ServiceImpl<UserMapper, User>
     @Autowired
     MessageMapper messageMapper;
 
-    public Map<Integer, Map<String, Object>> getMyFrieds(Integer meId)
+    public Map<String, Map<String, Object>> getMyFrieds(String meId)
     {
         List<User> myFrieds = baseMapper.findMyFrieds(meId);
-        Map<Integer, Map<String, Object>> map = new HashMap<>();
+        Map<String, Map<String, Object>> map = new HashMap<>();
         myFrieds.stream().forEach(user -> {
             Integer count = messageMapper.selectCount(meId, user.getId());
             Map<String, Object> hashMap = new HashMap<>();
@@ -43,8 +43,8 @@ public class UserService extends ServiceImpl<UserMapper, User>
         return map;
     }
 
-    public Page<User> findList(Map<String, Object> map, Page<User> page)
+    public List<User> findList(Map<String, Object> map)
     {
-        return page.setRecords(baseMapper.findList(map, page));
+        return baseMapper.findList(map);
     }
 }
