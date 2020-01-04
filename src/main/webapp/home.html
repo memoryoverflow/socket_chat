@@ -303,10 +303,10 @@
                                     resize="none"
                                     :autosize="{ minRows: 3, maxRows: 3}"
                                     placeholder="请输入内容"
-                                    v-model="sendMsgContent.content">
+                                    v-model="sendMsgContent.content" @keyup.enter.native="sendMsg">
                             </el-input>
                             <div>
-                                <el-button size="mini" style="width: 100%" @click="sendMsg" type="primary">发送
+                                <el-button size="mini" style="width: 100%"  @click="sendMsg" type="primary">发送
                                 </el-button>
                             </div>
                         </div>
